@@ -43,5 +43,6 @@ def strategy_2(data, buy_frequency_limit):
                 buy_dates.append(data['week'][i])
                 buy_week_count = 0
 
+    revenue = total_profit + bank_reserve + contributions
     # Print results
-    return (total_profit, bank_reserve, buy_dates, regression, std, buy_list, coeffs, contributions)
+    return (total_profit, bank_reserve, buy_dates, regression, std, buy_list, coeffs, contributions, revenue)

@@ -103,9 +103,9 @@ print(f"Best revenue:  ${round(best_revenue):,} with parameters: \n\nbuy_frequen
 
 # Pass the best result to Data Analysis
 
-total_profit, bank_reserve, buy_dates, sell_dates, sell_threshold, buy_threshold, regression, std, buy_list, coeffs, total_cgt, contributions, revenue = strategy_1(data, buy_frequency_limit=best_params[0], buy_threshold=best_params[1], sell_threshold=best_params[2], sell_frequency_limit=best_params[3], sell_percentage=best_params[4])
+# total_profit, bank_reserve, buy_dates, sell_dates, sell_threshold, buy_threshold, regression, std, buy_list, coeffs, total_cgt, contributions, revenue = strategy_1(data, buy_frequency_limit=best_params[0], buy_threshold=best_params[1], sell_threshold=best_params[2], sell_frequency_limit=best_params[3], sell_percentage=best_params[4])
 
-# total_profit, bank_reserve, buy_dates, buy_list = strategy_2(data)
+total_profit, bank_reserve, buy_dates, buy_list, sell_dates, regression, sell_threshold, std, buy_threshold, contributions, total_cgt, coeffs = strategy_2(data)
 
 # DATA ANALYSIS ###############################################################
 
@@ -132,8 +132,6 @@ ending_value = total_profit + contributions + value_in_market
 number_of_years = 10
 annualized_return = ((ending_value / contributions) ** (1/number_of_years))
 #### year_on_year_return =  ((ending_value - beginning_value) / beginning_value) * 100
-
-
 
 ending_value = round(ending_value)
 print(ending_value)
