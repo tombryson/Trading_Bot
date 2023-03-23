@@ -25,10 +25,8 @@ from datetime import datetime
 # Define the range of values for each input parameter
 buy_frequency_limit_range = [i / 100 for i in range(200, 1300)]
 buy_threshold_range = [i / 100 for i in range(20, 280)]
-
 sell_frequency_limit_range = [i / 100 for i in range(200, 1400)]
 sell_threshold_range = [i / 100 for i in range(20, 280)]
-
 sell_percentage_range = [i / 100 for i in range(10, 90)]
 
 # Define the number of iterations to run the search algorithm
@@ -43,6 +41,7 @@ def generate_random_params():
     sell_percentage = np.random.choice(sell_percentage_range)
     return buy_frequency_limit, buy_threshold, sell_threshold, sell_frequency_limit, sell_percentage
 
+<<<<<<< HEAD:40percentStrategy.py
 def run_strategy(params):
     buy_frequency_limit, buy_threshold, sell_threshold, sell_frequency_limit, sell_percentage = params
 
@@ -53,7 +52,23 @@ def run_strategy(params):
     # revenue = strategy_2(data, buy_frequency_limit=buy_frequency_limit)[0]
 
     print(f"Total Revenue: ${round(revenue):,}")
+=======
+def run_strategy(params, strategy_func):
+    if strategy_func == strategy_1:
+        buy_frequency_limit, buy_threshold, sell_threshold, sell_frequency_limit, sell_percentage = params
+        result = strategy_1(data, buy_frequency_limit=buy_frequency_limit, buy_threshold=buy_threshold, sell_threshold=sell_threshold, sell_frequency_limit=sell_frequency_limit, sell_percentage=sell_percentage)
+        revenue = result[0] + result[1] + result[11]
+        print(f"Total Revenue (Strategy 1): ${round(revenue):,}")
+    elif strategy_func == strategy_2:
+        buy_frequency_limit = params
+        result = strategy_2(data, buy_frequency_limit=buy_frequency_limit)
+        revenue = result[0] + result[1] + result[7]
+        print(f"Total Revenue (Strategy 2): ${round(revenue):,}")
+    else:
+        raise ValueError("Invalid strategy function provided.")
+>>>>>>> 8a8a5a4 (useless files):Stock_bot.py
     return revenue
+
 
 def acceptance_probability(old_revenue, new_revenue, temperature):
     if new_revenue > old_revenue:
@@ -62,54 +77,41 @@ def acceptance_probability(old_revenue, new_revenue, temperature):
         return math.exp((new_revenue - old_revenue) / temperature)
 
 # Define a function to run the simulated annealing algorithm
-def run_simulated_annealing(num_iterations):
-    # Set initial temperature and cooling rate
+def run_simulated_annealing(num_iterations, strategy):
     temperature = 1.0
     cooling_rate = 0.003
-    # Generate an initial set of parameters and calculate the initial revenue
     current_params = generate_random_params()
-    current_revenue = run_strategy(current_params)
-    # Set the best parameters and profit to the current ones
+    current_revenue = run_strategy(current_params, strategy)
     best_params = current_params
     best_revenue = current_revenue
-    # Loop over the specified number of iterations
     for i in range(num_iterations):
-        # Generate a new set of parameters
         new_params = generate_random_params()
-    
-        # Calculate the profit using the new parameters
-        new_revenue = run_strategy(new_params)
-        
-        # Calculate the acceptance probability for the new parameters
+        new_revenue = run_strategy(new_params, strategy)
         accept_prob = acceptance_probability(current_revenue, new_revenue, temperature)
-        
-        # If the new parameters are better, accept them
         if accept_prob > random.random():
             current_params = new_params
             current_revenue = new_revenue
-        
-        # If the new profit is better than the best profit, update the best parameters and profit
         if new_revenue > best_revenue:
             best_params = new_params
             best_revenue = new_revenue
-        
-        # Reduce the temperature according to the cooling rate
         temperature *= 1 - cooling_rate
-    
-    # Return the best parameters and profit
     return best_params, best_revenue
 
 # Run the randomized search algorithm and print the best result
-best_params, best_revenue = run_simulated_annealing(num_iterations)
+best_params, best_revenue = run_simulated_annealing(num_iterations, strategy_1)
 
 print(f"Best revenue:  ${round(best_revenue):,} with parameters: \n\nbuy_frequency_limit={best_params[0]}, buy_threshold={best_params[1]}, sell_threshold={best_params[2]}, sell_frequency_limit={best_params[3]}, sell_percentage={best_params[4]} \n")
 
 
+<<<<<<< HEAD:40percentStrategy.py
 
 # Pass the best result to Data Analysis ##############################################################################################################################################
 
 # Strategy 1
 total_profit, bank_reserve, buy_dates, sell_dates, sell_threshold, buy_threshold, regression, std, buy_list, coeffs, total_cgt, contributions, revenue = strategy_1(data, buy_frequency_limit=best_params[0], buy_threshold=best_params[1], sell_threshold=best_params[2], sell_frequency_limit=best_params[3], sell_percentage=best_params[4])
+=======
+total_profit, bank_reserve, buy_dates, sell_dates, sell_threshold, buy_threshold, regression, std, buy_list, coeffs, total_cgt, contributions, revenue, twr, yy_return = strategy_1(data, buy_frequency_limit=best_params[0], buy_threshold=best_params[1], sell_threshold=best_params[2], sell_frequency_limit=best_params[3], sell_percentage=best_params[4])
+>>>>>>> 8a8a5a4 (useless files):Stock_bot.py
 
 # Strategy 2
 # bank_reserve, buy_dates, regression, std, buy_list, coeffs, contributions, revenue = strategy_2(data, buy_frequency_limit=best_params[0])
@@ -135,16 +137,25 @@ year = datetime.strptime(str(buy_dates[0]), '%Y-%m-%d %H:%M:%S').year
 value_in_market = 0
 ending_value = revenue
 number_of_years = 10
+<<<<<<< HEAD:40percentStrategy.py
 annualized_return = ((((ending_value - contributions) / contributions) * 100) / number_of_years)
 # year_on_year_return =  ((ending_value - beginning_value) / beginning_value) * 100
+=======
+annualized_return = ((ending_value / contributions) ** (1/number_of_years))
+#### year_on_year_return =  ((ending_value - beginning_value) / beginning_value) * 100
+>>>>>>> 8a8a5a4 (useless files):Stock_bot.py
 
 ending_value = round(ending_value)
 print(ending_value)
 print(f"{contributions}")
 print(f"{number_of_years}")
+<<<<<<< HEAD:40percentStrategy.py
 TWR = ending_value / (contributions) ** (1 / 10) - 1
 print(f"TWR is {TWR}")
 
+=======
+print(f"TWR is {twr}")
+>>>>>>> 8a8a5a4 (useless files):Stock_bot.py
 print(f"{annualized_return}")
 
 # Print Calculations
@@ -155,5 +166,9 @@ print(f"Value still in market: ${round(value_in_market):,}")
 print(f"Amount in bank: ${round(bank_reserve):,}")
 print(f"Total Revenue is: ${round(ending_value):,}")
 print(f"Total Tax: ${round(total_cgt):,}")
+<<<<<<< HEAD:40percentStrategy.py
 print(f"{round(annualized_return,3)}% Return y/y")
+=======
+print(f"{yy_return}% Return y/y")
+>>>>>>> 8a8a5a4 (useless files):Stock_bot.py
 print(f"Market Return: {round(coeffs[0] * 100)}%")
