@@ -16,7 +16,6 @@ plt.ylabel('Adj Close')
 plt.title('Time Series Data')
 plt.savefig('figure1.png')
 
-# total_profit, bank_reserve, buy_dates, sell_dates, sell_threshold, buy_threshold, regression, std, buy_list, coeffs, total_cgt = strategy_1(data, buy_frequency_limit=5, buy_threshold=1, sell_threshold=1, sell_frequency_limit=8, sell_percentage=0.4)
 
 #### Testing ###################################################################
 import random
@@ -46,9 +45,13 @@ def generate_random_params():
 
 def run_strategy(params):
     buy_frequency_limit, buy_threshold, sell_threshold, sell_frequency_limit, sell_percentage = params
+
     # Call the strategy function with the given input parameters
+
     revenue = strategy_1(data, buy_frequency_limit=buy_frequency_limit, buy_threshold=buy_threshold, sell_threshold=sell_threshold, sell_frequency_limit=sell_frequency_limit, sell_percentage=sell_percentage)[0]
-    # total_profit = strategy_2(data)
+    
+    # revenue = strategy_2(data, buy_frequency_limit=buy_frequency_limit)[0]
+
     print(f"Total Revenue: ${round(revenue):,}")
     return revenue
 
@@ -101,11 +104,16 @@ best_params, best_revenue = run_simulated_annealing(num_iterations)
 
 print(f"Best revenue:  ${round(best_revenue):,} with parameters: \n\nbuy_frequency_limit={best_params[0]}, buy_threshold={best_params[1]}, sell_threshold={best_params[2]}, sell_frequency_limit={best_params[3]}, sell_percentage={best_params[4]} \n")
 
-# Pass the best result to Data Analysis
 
-# total_profit, bank_reserve, buy_dates, sell_dates, sell_threshold, buy_threshold, regression, std, buy_list, coeffs, total_cgt, contributions, revenue = strategy_1(data, buy_frequency_limit=best_params[0], buy_threshold=best_params[1], sell_threshold=best_params[2], sell_frequency_limit=best_params[3], sell_percentage=best_params[4])
 
-total_profit, bank_reserve, buy_dates, buy_list, sell_dates, regression, sell_threshold, std, buy_threshold, contributions, total_cgt, coeffs = strategy_2(data)
+# Pass the best result to Data Analysis ##############################################################################################################################################
+
+# Strategy 1
+total_profit, bank_reserve, buy_dates, sell_dates, sell_threshold, buy_threshold, regression, std, buy_list, coeffs, total_cgt, contributions, revenue = strategy_1(data, buy_frequency_limit=best_params[0], buy_threshold=best_params[1], sell_threshold=best_params[2], sell_frequency_limit=best_params[3], sell_percentage=best_params[4])
+
+# Strategy 2
+# bank_reserve, buy_dates, regression, std, buy_list, coeffs, contributions, revenue = strategy_2(data, buy_frequency_limit=best_params[0])
+
 
 # DATA ANALYSIS ###############################################################
 
@@ -125,13 +133,10 @@ plt.savefig('figure2.png')
 # Calculate Variables
 year = datetime.strptime(str(buy_dates[0]), '%Y-%m-%d %H:%M:%S').year
 value_in_market = 0
-while len(buy_list) != 0:
-    buy_price, purchase_week, shares = buy_list.pop()
-    value_in_market += shares * buy_price
-ending_value = total_profit + contributions + value_in_market
+ending_value = revenue
 number_of_years = 10
-annualized_return = ((ending_value / contributions) ** (1/number_of_years))
-#### year_on_year_return =  ((ending_value - beginning_value) / beginning_value) * 100
+annualized_return = ((((ending_value - contributions) / contributions) * 100) / number_of_years)
+# year_on_year_return =  ((ending_value - beginning_value) / beginning_value) * 100
 
 ending_value = round(ending_value)
 print(ending_value)
@@ -139,7 +144,6 @@ print(f"{contributions}")
 print(f"{number_of_years}")
 TWR = ending_value / (contributions) ** (1 / 10) - 1
 print(f"TWR is {TWR}")
-
 
 print(f"{annualized_return}")
 
@@ -151,5 +155,5 @@ print(f"Value still in market: ${round(value_in_market):,}")
 print(f"Amount in bank: ${round(bank_reserve):,}")
 print(f"Total Revenue is: ${round(ending_value):,}")
 print(f"Total Tax: ${round(total_cgt):,}")
-print(f"{round(annualized_return*100,2)}% Return y/y")
+print(f"{round(annualized_return,3)}% Return y/y")
 print(f"Market Return: {round(coeffs[0] * 100)}%")

@@ -34,10 +34,6 @@ def strategy_1(data, buy_frequency_limit, buy_threshold, sell_threshold, sell_fr
             bank_reserve += 3000
             contributions += 3000
 
-        # Determine Dividend payment
-        if i % 13 == 0:
-            
-
         # Check if price is below regression line
         price_above_regression = current_price >= regression[i]
         if not price_above_regression:
@@ -47,7 +43,7 @@ def strategy_1(data, buy_frequency_limit, buy_threshold, sell_threshold, sell_fr
             if buy_week_count > buy_frequency_limit and np.any(current_price < regression[i] - buy_threshold * std):
                 # Buy as many shares as possible with the bank_reserve amount
                 share_price = current_price
-                shares_to_buy = bank_reserve / share_price
+                shares_to_buy = bank_reserve // share_price
                 purchase_cost = shares_to_buy * share_price + 10 ## Fixed cost for brokerage
 
                 # Update buy_list
@@ -115,14 +111,11 @@ def strategy_1(data, buy_frequency_limit, buy_threshold, sell_threshold, sell_fr
 
     # Determine the value still in the market
     shares_in_market = buy_list.copy()
-    final_price = data['Adj Close'][len(data)-1]
-    if len(shares_in_market) > 0:
-        while len(shares_in_market) > 0:
-            buy_price, purchase_week, shares = shares_in_market.pop()
-            value = shares * final_price
-        revenue = bank_reserve + value
-    else:
-        revenue = bank_reserve
-    
+    final_price = data['Adj Close'][-1]
+    while len(shares_in_market) > 0:
+        buy_price, purchase_week, shares = shares_in_market.pop()
+        value = shares * final_price
+
+    revenue = bank_reserve + value
     # Print results
     return (total_profit, bank_reserve, buy_dates, sell_dates, sell_threshold, buy_threshold, regression, std, buy_list, coeffs, total_cgt, contributions, revenue)

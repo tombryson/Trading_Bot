@@ -12,7 +12,6 @@ def strategy_2(data, buy_frequency_limit):
     buy_week_count = 0 # Counter for number of consecutive weeks below regression line
     buy_dates = []
     buy_list = []
-    total_profit = 0
     contributions = 0
 
     # Calculate regression and standard deviation
@@ -30,19 +29,19 @@ def strategy_2(data, buy_frequency_limit):
             contributions += 3000
             buy_week_count += 1
 
-            if buy_week_count > buy_frequency_limit:
-                # Buy as many shares as possible with the bank_reserve amount
-                share_price = data['Adj Close'][i]
-                shares_to_buy = bank_reserve // share_price
-                purchase_cost = shares_to_buy * share_price + 10 ## Fixed cost for brokerage
-                # Update buy_list
-                buy_list.append((share_price, i, shares_to_buy))
-                # Update variables
-                bank_reserve -= purchase_cost
-                # Add the buy date to the list of buy dates
-                buy_dates.append(data['week'][i])
-                buy_week_count = 0
+        if buy_week_count > buy_frequency_limit:
+            # Buy as many shares as possible with the bank_reserve amount
+            share_price = data['Adj Close'][i]
+            shares_to_buy = bank_reserve / share_price
+            purchase_cost = shares_to_buy * share_price + 10 ## Fixed cost for brokerage
+            # Update buy_list
+            buy_list.append((share_price, i, shares_to_buy))
+            # Update variables
+            bank_reserve -= purchase_cost
+            # Add the buy date to the list of buy dates
+            buy_dates.append(data['week'][i])
+            buy_week_count = 0
 
-    revenue = total_profit + bank_reserve + contributions
+    revenue = bank_reserve + contributions
     # Print results
-    return (total_profit, bank_reserve, buy_dates, regression, std, buy_list, coeffs, contributions, revenue)
+    return (bank_reserve, buy_dates, regression, std, buy_list, coeffs, contributions, revenue)
