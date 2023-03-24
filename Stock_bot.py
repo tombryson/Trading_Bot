@@ -103,15 +103,7 @@ best_params, best_revenue = run_simulated_annealing(num_iterations, strategy_1)
 print(f"Best revenue:  ${round(best_revenue):,} with parameters: \n\nbuy_frequency_limit={best_params[0]}, buy_threshold={best_params[1]}, sell_threshold={best_params[2]}, sell_frequency_limit={best_params[3]}, sell_percentage={best_params[4]} \n")
 
 
-<<<<<<< HEAD:40percentStrategy.py
-
-# Pass the best result to Data Analysis ##############################################################################################################################################
-
-# Strategy 1
-total_profit, bank_reserve, buy_dates, sell_dates, sell_threshold, buy_threshold, regression, std, buy_list, coeffs, total_cgt, contributions, revenue = strategy_1(data, buy_frequency_limit=best_params[0], buy_threshold=best_params[1], sell_threshold=best_params[2], sell_frequency_limit=best_params[3], sell_percentage=best_params[4])
-=======
 total_profit, bank_reserve, buy_dates, sell_dates, sell_threshold, buy_threshold, regression, std, buy_list, coeffs, total_cgt, contributions, revenue, twr, yy_return = strategy_1(data, buy_frequency_limit=best_params[0], buy_threshold=best_params[1], sell_threshold=best_params[2], sell_frequency_limit=best_params[3], sell_percentage=best_params[4])
->>>>>>> 8a8a5a4 (useless files):Stock_bot.py
 
 # Strategy 2
 # bank_reserve, buy_dates, regression, std, buy_list, coeffs, contributions, revenue = strategy_2(data, buy_frequency_limit=best_params[0])
@@ -137,25 +129,14 @@ year = datetime.strptime(str(buy_dates[0]), '%Y-%m-%d %H:%M:%S').year
 value_in_market = 0
 ending_value = revenue
 number_of_years = 10
-<<<<<<< HEAD:40percentStrategy.py
-annualized_return = ((((ending_value - contributions) / contributions) * 100) / number_of_years)
-# year_on_year_return =  ((ending_value - beginning_value) / beginning_value) * 100
-=======
 annualized_return = ((ending_value / contributions) ** (1/number_of_years))
 #### year_on_year_return =  ((ending_value - beginning_value) / beginning_value) * 100
->>>>>>> 8a8a5a4 (useless files):Stock_bot.py
 
 ending_value = round(ending_value)
 print(ending_value)
 print(f"{contributions}")
 print(f"{number_of_years}")
-<<<<<<< HEAD:40percentStrategy.py
-TWR = ending_value / (contributions) ** (1 / 10) - 1
-print(f"TWR is {TWR}")
-
-=======
 print(f"TWR is {twr}")
->>>>>>> 8a8a5a4 (useless files):Stock_bot.py
 print(f"{annualized_return}")
 
 # Print Calculations
@@ -166,9 +147,5 @@ print(f"Value still in market: ${round(value_in_market):,}")
 print(f"Amount in bank: ${round(bank_reserve):,}")
 print(f"Total Revenue is: ${round(ending_value):,}")
 print(f"Total Tax: ${round(total_cgt):,}")
-<<<<<<< HEAD:40percentStrategy.py
-print(f"{round(annualized_return,3)}% Return y/y")
-=======
 print(f"{yy_return}% Return y/y")
->>>>>>> 8a8a5a4 (useless files):Stock_bot.py
 print(f"Market Return: {round(coeffs[0] * 100)}%")
