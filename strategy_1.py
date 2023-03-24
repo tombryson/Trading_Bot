@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import math as math
 
 # Load datasell_frequency
 data = pd.read_csv('data.csv', parse_dates=['date'])
@@ -9,6 +10,9 @@ data = data.groupby('week')['Adj Close'].last().reset_index()
 def strategy_1(data, buy_frequency_limit, buy_threshold, sell_threshold, sell_frequency_limit, sell_percentage):
     # Initialize variables
     bank_reserve = 1000
+    initial_value = bank_reserve # Used for y/y caluclation
+    twr_log_numerator = 0
+    twr_log_denominator = 0
     buy_week_count = 0 # Counter for number of consecutive weeks below regression line
     sell_week_count = 0 # Counter for number of consecutive weeks above predicted price
     buy_dates = []
@@ -29,14 +33,19 @@ def strategy_1(data, buy_frequency_limit, buy_threshold, sell_threshold, sell_fr
     # Loop over each week
     for i in range(1, len(data)):
         current_price = data['Adj Close'][i]
-        # Add $3000 to bank_reserve every 6 weeks
+
+        # Add $3000 to bank_reserve every 3 months
         if i % 13 == 0:
+            portfolio_value = bank_reserve
+            dividend_payment = 0
+            for buy_price, purchase_week, shares in buy_list:
+                value = shares * current_price 
+                portfolio_value += value
+                dividend_payment += value * 0.01 # Incorporate a 4% p.a dividend
+            bank_reserve += dividend_payment
             bank_reserve += 3000
             contributions += 3000
-
-        # Determine Dividend payment
-        if i % 13 == 0:
-            
+            portfolio_value += 3000
 
         # Check if price is below regression line
         price_above_regression = current_price >= regression[i]
@@ -45,6 +54,12 @@ def strategy_1(data, buy_frequency_limit, buy_threshold, sell_threshold, sell_fr
             sell_week_count = 0
 
             if buy_week_count > buy_frequency_limit and np.any(current_price < regression[i] - buy_threshold * std):
+                # Calculate portfolio value before buying
+                portfolio_value = bank_reserve
+                for buy_price, purchase_week, shares in buy_list:
+                    portfolio_value += shares * current_price
+                
+                twr_log_numerator += math.log(portfolio_value)
                 # Buy as many shares as possible with the bank_reserve amount
                 share_price = current_price
                 shares_to_buy = bank_reserve / share_price
@@ -56,6 +71,11 @@ def strategy_1(data, buy_frequency_limit, buy_threshold, sell_threshold, sell_fr
                 # Update variables
                 bank_reserve -= purchase_cost
 
+                # Calculate portfolio value after buying
+                portfolio_value = bank_reserve
+                for buy_price, purchase_week, shares in buy_list:
+                    portfolio_value += shares * current_price
+
                 # Add the buy date to the list of buy dates
                 buy_dates.append(data['week'][i])
                 buy_week_count = 0
@@ -66,6 +86,12 @@ def strategy_1(data, buy_frequency_limit, buy_threshold, sell_threshold, sell_fr
             sell_week_count += 1
 
             if sell_week_count > sell_frequency_limit and np.any(current_price >= regression[i] + sell_threshold * std) and len(buy_list) >= 1:
+                # Calculate portfolio value before selling
+                portfolio_value = bank_reserve
+                for buy_price, purchase_week, shares in buy_list:
+                    portfolio_value += shares * current_price
+
+                twr_log_numerator += math.log(portfolio_value)
 
                 # Calculate total shares in the market
                 shares_to_sell = 0
@@ -113,6 +139,13 @@ def strategy_1(data, buy_frequency_limit, buy_threshold, sell_threshold, sell_fr
                 # Add the sell date to the list of sell dates
                 sell_dates.append(data['week'][i])
 
+                # Calculate portfolio value after selling
+                portfolio_value = bank_reserve
+                for buy_price, purchase_week, shares in buy_list:
+                    portfolio_value += shares * current_price
+
+                twr_log_denominator += math.log(portfolio_value)
+
     # Determine the value still in the market
     shares_in_market = buy_list.copy()
     final_price = data['Adj Close'][len(data)-1]
@@ -123,6 +156,10 @@ def strategy_1(data, buy_frequency_limit, buy_threshold, sell_threshold, sell_fr
         revenue = bank_reserve + value
     else:
         revenue = bank_reserve
+
+    # After the loop, calculate the TWR and y/y return
+    twr = math.exp((twr_log_numerator - twr_log_denominator) / (len(data) / 52)) - 1
+    yy_return = (revenue - initial_value) / initial_value
     
     # Print results
-    return (total_profit, bank_reserve, buy_dates, sell_dates, sell_threshold, buy_threshold, regression, std, buy_list, coeffs, total_cgt, contributions, revenue)
+    return (total_profit, bank_reserve, buy_dates, sell_dates, sell_threshold, buy_threshold, regression, std, buy_list, coeffs, total_cgt, contributions, revenue, twr, yy_return)
